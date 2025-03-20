@@ -7,10 +7,84 @@ output: html_document
 
 # Recreating a plot from a paper
 
-#combine both csv files
+```{r}
+library(tidyverse)
+```
 
-upper_temp <- read.csv()
-  
-lower_temp <- 
+# Load offs
 
-geom_line()
+```{r}
+
+upper <- read.csv("../data/upper_temp.csv")
+lower <- read.csv("../data/lower_temp.csv")
+
+```
+
+# Check
+
+```{r}
+upper
+lower
+
+```
+x axis is days
+y axis is number of surviving coral colonies
+
+```{r}
+upper <- upper %>%
+  mutate(Days = round(x,0), .keep = "unused") %>%
+  mutate(No_cols = round(y,0), .keep = "unused") %>%
+  mutate(Temp = "upper")
+
+```
+
+```{r}
+lower <- lower %>%
+  mutate(Days = round(x,0), .keep = "unused") %>%
+  mutate(No_cols = round(y,0), .keep = "unused") %>%
+  mutate(Temp = "lower")
+
+```
+
+#Check
+
+```{r}
+upper
+lower
+```
+# combine both csv files
+
+```{r}
+coral_data <-
+  bind_rows(upper, lower)
+```
+
+# Check
+```{r}
+coral_data
+
+```
+
+
+
+```{r}
+coral_data %>%
+  ggplot(aes(x = Days, # make a ggplot # edit aesthetics #label x axis as Days
+             y = No_cols, # label y axis as Number of columns (No_cols)
+             group = Temp, # group by temperature (upper & lower)
+             shape = Temp, # assig different shapes to each temp variable
+             colour = Temp)) + # assign different colours to each temp variable
+  geom_point() + # put in dots/shapes for data points
+  geom_smooth(se = FALSE) + # connect points with a smooth line & lose standard error bar
+  theme_classic() # change colour theme to classic (lose grey background)
+```
+
+```{r}
+coral_data %>%
+  ggplot(aes(x = Days, y = No_cols, group = Temp, shape = Temp, colour = Temp)) + 
+  geom_point() +
+  geom_line()+ # insert line
+  #geom_smooth(se = FALSE) + # lose smooth line
+  theme_classic()
+```
+

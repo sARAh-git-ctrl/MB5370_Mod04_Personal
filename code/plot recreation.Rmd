@@ -1,0 +1,16 @@
+---
+title: "plot recreation"
+author: "Sarah Hodgson"
+date: "2025-03-20"
+output: html_document
+---
+
+# Recreating a plot from a paper
+
+#combine both csv files
+
+upper_temp <- read.csv()
+  
+lower_temp <- 
+
+geom_line()

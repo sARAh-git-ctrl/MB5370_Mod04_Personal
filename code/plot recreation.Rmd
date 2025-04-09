@@ -74,8 +74,12 @@ coral_data %>%
              group = Temp, # group by temperature (upper & lower)
              shape = Temp, # assig different shapes to each temp variable
              colour = Temp)) + # assign different colours to each temp variable
-  geom_point() + # put in dots/shapes for data points
+  geom_point(size = 2) + # put in dots/shapes for data points
   geom_smooth(se = FALSE) + # connect points with a smooth line & lose standard error bar
+  labs(x = "Days of treatment", # rename x-axis
+       y = "Number of living coral colonies", # rename y-axis
+       shape = "Lethal temperature", # rename Legend
+       colour = "Lethal temperature") + # rename Legend
   theme_classic() # change colour theme to classic (lose grey background)
 ```
 

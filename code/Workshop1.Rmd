@@ -96,9 +96,12 @@ ggplot(data = mpg) +
 
 # Troubleshooting 
 
+```{r}
+ggplot(data = mpg) 
++ geom_point(mapping = aes(x = displ, y = hwy)) 
+# the + should be on top line
 
-
-
+```
 
 
 # Faceting
@@ -118,6 +121,7 @@ A separate facet for each combination of drive-type (e.g. 4WD) * number of cylin
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_grid(drv ~ cyl)
+
 ```
 Note that there are no occurrences of 5 cylinder 4WDs OR RWD vehicles!
 
@@ -237,8 +241,6 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_point(mapping = aes(color = class)) + 
   geom_smooth(data = filter(mpg, class == "subcompact"))
 
-
-
 ```
 
 se = FALSE removes the Standard Error from the plot
@@ -249,10 +251,41 @@ se = FALSE removes the Standard Error from the plot
 
 ```{r}
 
+#line chart
+geom_line?
+
+linetype?
+  
+geom_line(
+  x = 5, y = 10,
+  alpha =0,
+  color = ,
+  group = NULL,
+  linetype = 0,
+  size = 3
+)
+
+ggplot(data = mpg) + 
+  geom_line(mapping = aes(x = displ, y = hwy))
+
+
+#boxplot
+geom_boxplot()
+
+#histogram
+geom_histogram()
+
+#area chart
+geom_area()
+
+
 ```
 
 
 3.  Will these two graphs look different? Why/why not?
+
+They will look the same because they contain the same instructions
+
 ```{r}
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
   geom_point() + 

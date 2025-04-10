@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-3.10 Assignment: End-to-end data analysis in R
+# 3.10 Assignment: End-to-end data analysis in R
 
 This assignment is to develop a full end-to-end analysis of a dataset in R, designed to show how you can now take any dataset and use your skills as a marine data scientist to build impressive analyses and data visualisations that you can share with end-users. 
 
@@ -19,18 +19,18 @@ In this assignment, I used real-world marine data collected as part of Queenslan
 
 ________________________________________________________________________________________________
 
-Part 1. Obtaining data. 
+### Part 1. Obtaining data. 
 
 1. Review all of the available datasets in QFISH & identify which one I will analyse.
 
-Chosen dataset: Commercial Otter Trawl Fishery
+   Chosen dataset: Commercial Otter Trawl Fishery
 
 2. Export the dataset in an appropriate format for R (CSV file).
 3. Use my Github repo to save the data in an appropriate place.
 Ensure I sync my github regularly by committing and pushing to the remote repository.
 
 4. Read dataset & check if it displays correctly
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 
 #read csv file
@@ -40,9 +40,9 @@ qfish
 
 ```
 
-Part 2. Tidy the data.
+### Part 2. Tidy the data.
 
-5. Using the tidyverse, get your data ready for making a plot.
+5. Using the tidyverse, get my data ready for making a plot.
 
 ```{r}
 # Clean the Tonnes column: remove commas and convert to numeric
@@ -52,33 +52,33 @@ qfish$Tonnes <- as.numeric(gsub(",", "", qfish$Tonnes))
 
 6. Develop a plot to visualise the relationship between the number of fishing licences permitted and the tonnes of catch.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Remove the outlier (highest Tonnes value)
 qfish_no_outlier <- qfish[qfish$Tonnes < max(qfish$Tonnes, na.rm = TRUE), ]
 
 # Create scatter plot
-ggplot() +
-  geom_point(data = qfish_no_outlier, aes(x = Licences, y = Tonnes, color = "Catch Data"), #add data points, set x & y axes, colour Catch Data points
-             alpha = 0.8, size = 1.5) + #transparency & size of data points
-  geom_smooth(data = qfish_no_outlier, aes(x = Licences, y = Tonnes, color = "Trendline"), #add trend line, set x & y axes, colour Trendline
-              method = "gam", se = FALSE, size = 1) + #use Generalised Additive Models (gam) for the trend line to make it fit the data more accurately
+licences_tonnes_plot <- ggplot() +
+  geom_point(data = qfish_no_outlier, aes(x = Licences, y = Tonnes, color = "Catch Data"), # add data points, set x & y axes, colour Catch Data points
+             alpha = 0.8, size = 1.5) + # transparency & size of data points
+  geom_smooth(data = qfish_no_outlier, aes(x = Licences, y = Tonnes, color = "Trendline"), # add trend line, set x & y axes, colour Trendline
+              method = "gam", se = FALSE, size = 1) + # use Generalised Additive Models (gam) for the trend line to make it fit the data more accurately
   scale_color_manual(
-    name = "Legend", #make legend & name
-    values = c("Catch Data" = "darkblue", "Trendline" = "red") #add colours to Catch data & Trend line
+    name = "Legend", # make legend & name
+    values = c("Catch Data" = "darkblue", "Trendline" = "red") # add colours to Catch data & Trend line
   ) +
-  scale_y_continuous(expand = expansion(mult = c(0.1, 0.15))) + #adjust scale
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.15))) + # adjust scale
   labs(
-    title = "Relationship Between Number of Licences and Tonnes of Catch", #name figure
-    x = "Number of Licences", #name x axis
-    y = "Tonnes of Catch" #name y axis
+    title = "Relationship Between Number of Licences and Tonnes of Catch", # name figure
+    x = "Number of Licences", # name x axis
+    y = "Tonnes of Catch" # name y axis
   ) +
-  theme_minimal() #make theme
+  theme_minimal() # make theme
 
+licences_tonnes_plot
 ```
 
-
-
-
-
-
+7. Save plot & name, specify device to use, dimensions, units, & resolution.
+```{r message=FALSE, warning=FALSE}
+ggsave("licences_tonnes_plot.png", plot = licences_tonnes_plot, device = "png", width = 120, height = 80, units = "mm", dpi = 300)
+```
 

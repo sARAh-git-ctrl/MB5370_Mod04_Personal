@@ -1,0 +1,557 @@
+---
+title: "MB5370 Module 04. Workshop 3 - Data wrangling in R"
+author: "Sarah Hodgson"
+date: "2025-04-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+4.2.1	Objectives
+
+Today we will focus on data tidying using tidyr. We will:
+Learn the principles of tidy data using tidyr
+Learn how to import datasets into R
+Learn how to join data with dplyr. ** Note: this section is optional and only for those who have rapidly progressed through the remaining sections of today’s workshop. 
+
+4.3 Tidying data using Tidyr
+
+Tidy data are happy data! Or rather, tidy data are useful data. So we are going to learn how to organize our data into tidy data which can be used in the tidyverse. Using tidy data in the tidyverse allows us to spend more time analyzing our data and less time manipulating it. 
+
+In this section, you will be introduced to tidy data and the accompanying tools in the tidyr package. tidyr is part of the core tidyverse, which you should now be quite familiar with. Before starting this section, make sure the tidyverse is loaded.
+
+```{r}
+#Load tidyverse
+library(tidyverse)
+
+```
+
+4.4 Tidy data
+
+There are many ways to display a given data set, but not every way is easy to use for analysis. For example, the format of a field datasheet might be convenient for data collection and entry, but it might not be a useful way to display the data when you go to analyse it. The process of rearranging your data to a format more appropriate for analysis is the process of “tidying.”
+
+Let’s look at an example below:
+
+```{r}
+table1
+```
+
+```{r}
+table2
+```
+
+```{r}
+table3
+```
+Each table displays the exact same dataset, but only table1 is “tidy.” Why? Do you see the differences between these tables? Let’s go over what makes a tidy dataset and why you always should strive to get your data into a tidy format. Note: here we’ve seen ‘tibble’ for the first time.
+
+How we make our dataset tidy is by following three interrelated rules. 
+1. Each variable must have its own column.
+2. Each observation must have its own row.
+3. Each value must have its own cell.
+
+Based on these rules, do you see why table1 is tidy and the others aren’t?
+
+These three rules are interrelated because it’s impossible to only satisfy two of the three. That interrelationship leads to an even simpler set of practical instructions:
+1. Put each dataset in a tibble (special dataframe)
+2. Put each variable in a column.
+
+Now, why do we care about having tidy data? We said before, tidy data is useful data and here’s why: 
+1. Having a consistent data structure makes it easier to learn the tools that work with it, and 
+2. Having your variables in columns allows R to use its ability to work with vectors of values. This makes transforming tidy data a smoother process.
+
+All packages in the tidyverse are designed to work with tidy data. Including ggplot2.
+
+Here are some examples of how you might work with tidy table1 from the previous example using some skills we’re about to learn. The key here is to note that filtering data, summarising data and using functions like group or color in ggplot2, is possible with a dataframe in this format, but impossible if it’s not in this format. 
+
+%>% is a pipe
+
+A pipe is really only designed to help you better understand what the code is doing. It takes the data (left of the pipe) and applies the function (right of pipe). In todays workshop we’ll use both %>%, and |>  which achieve the exact same thing (|> is brand new in base R, %>% only works in tidyr and magrittr packages)
+
+For now though, try to docs on the data. You take the data, use a pipe and apply a function to it, specifying arguments inside the function (like below, we apply the function mutate to compute the rate given two variables).
+
+```{r}
+# Compute rate per 10,000
+table1 %>% 
+  mutate(rate = cases / population * 10000)
+```
+
+```{r}
+# Compute cases per year
+table1 %>% 
+  count(year, wt = cases)
+```
+
+```{r}
+# Visualise changes over time
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+
+```
+Understanding whether your data frame structure is optimal (or tidy) is a fundamental skill for a data scientist. I rarely underline and bold, but I cannot stress this enough - once you master your understanding of how to best structure a data frame, everything else in R will become easy (well, easier).
+
+4.4.1 Exercises
+
+1. For each of the sample tables, describe what each observation and each column represents.
+
+Table 1
+In table table1, each row represents a (country, year) combination. The columns cases and population contain the values for those variables.
+
+Observations:
+Afghanistan - Afghanistan in 1999
+Afghanistan - Afghanistan in 2000
+Brazil - Brazil in 1999
+Brazil - Brazil in 2000
+China - China in 1999
+China - China in 2000
+
+Columns:
+country - which country's data
+year - which year data from
+cases - number of cases
+population - total population count
+
+Table 2:
+In table2, each row represents a (country, year, variable) combination. The column count contains the values of variables cases and population in separate rows.
+
+Observations:
+Afghanistan - Afghanistan in 1999
+Afghanistan - Afghanistan in 2000
+Brazil - Brazil in 1999
+Brazil - Brazil in 2000
+China - China in 1999
+China - China in 2000
+
+Columns:
+country - which country's data
+year - which year data from
+type - cases or population
+count - count for cases or population
+
+Table 3:
+In table3, each row represents a (country, year) combination. The column rate provides the values of both cases and population in a string formatted like cases / population.
+
+Observations:
+Afghanistan - Afghanistan in 1999
+Afghanistan - Afghanistan in 2000
+Brazil - Brazil in 1999
+Brazil - Brazil in 2000
+China - China in 1999
+China - China in 2000
+
+Columns:
+country - which country's data
+year - which year data from
+rate - rates, but not clear what of
+
+2. Sketch out the processes you would use to calculate the rate for table2 and table3. You will need to perform four operations:
+a) Extract the number of TB cases per country per year
+b) Extract the matching population per country per year
+c) Divide cases by population, and multiply by 10,000
+d) Store back in the appropriate place
+
+Hint: you haven’t yet learned the functions you need to actually perform these, but you can still think through the transformations!
+
+Table 2:
+
+a) Extract the number of TB cases per country per year
+b) Extract the matching population per country per year
+```{r}
+library(tidyverse)
+
+# Separate 'cases' and 'population' into separate columns
+table2_wide <- table2 %>%
+  pivot_wider(names_from = type, values_from = count)
+
+table2_wide
+
+```
+c) Divide cases by population, and multiply by 10,000
+d) Store back in the appropriate place
+
+```{r}
+# Calculate the rate per 10,000
+table2_with_rate <- table2_wide %>%
+  mutate(rate = (cases / population) * 10000)
+
+table2_with_rate
+
+```
+
+Table 3:
+
+a) Extract the number of TB cases per country per year
+b) Extract the matching population per country per year
+
+```{r}
+library(tidyverse)
+
+# Separate the 'rate' string into two numeric columns: cases and population
+table3_clean <- table3 %>%
+  separate(rate, into = c("cases", "population"), sep = "/", convert = TRUE)
+
+table3_clean
+```
+
+c) Divide cases by population, and multiply by 10,000
+d) Store back in the appropriate place
+
+```{r}
+# Calculate the rate per 10,000
+table3_with_rate <- table3_clean %>%
+  mutate(rate = (cases / population) * 10000)
+
+table3_with_rate
+```
+
+4.5 Pivoting data to make it tidy
+
+Even though tidy data is super handy, most of the data you’ll encounter will likely be untidy. Many people aren’t familiar with the concept of tidy data, and the format in which data is collected is not always done with future analyses in mind. This means that with most data, some amount of tidying will be needed before you can commence analysis. 
+
+So let’s dive in. What should we do with the dataset you’ve collected? How should we transform it to get it into a structure where we can start to do things to it?
+
+The first step in tidying the data is to understand what each variable and observation actually means. Sometimes this is obvious and sometimes you’ll need to consult with the person(s) who collected the data. 
+
+And often the person who knows the most about the data is YOU! So while learning how to tidy data in R is critical, the way in which you enter your data into excel is also vital! 
+
+The understanding of data structures here can translate into better data entry, and I think, can be another one of those pieces of knowledge that will change your life in the future!
+
+Once you understand the data you’re looking at, the second step is to resolve one of the two common problems with untidy data. These are:
+1. One variable is spread across multiple columns
+2. One observation is scattered across multiple rows
+
+Hopefully your dataset will only have one of these problems but sometimes you may encounter both. 
+
+To fix these we will pivot our data (i.e. move it around) into tidy form using two functions in tidyr: pivot_longer() to lengthen data and pivot_wider() to widen data. Let’s explore these functions a bit further.
+
+4.5.1 Lengthening datasets
+
+We’ll start with pivoting our data frame longer because this is the most common tidying issue you will likely face within a given dataset. 
+pivot_longer() makes datasets “longer” by increasing the number of rows and decreasing the number of columns, solving those common problems of data values in the variable name (e.g wk1, wk2, wk3, etc.).
+
+Let’s visualize this in the image below. The table on the right (table4) needs to be wrangled into ‘long’ format (represented by the table on the left) in order to satisfy the 3 rules of tidy data (section 4.4). The issue here is that we want to group our data by year, or use it as a factor, and ggplot2 and most statistical packages cannot do this with data in columns. Only variables should be in columns. Therefore, including the variable we want to group by (year in the below) we pass the variable name to any grouping function, like facet_wrap().
+
+Using  pivot_longer() splits the dataset by column, and reformats it into the tidy format of observations as rows, columns as variables and values as cell entries. The dataset is now longer (more rows, at left) than the ‘wide format’ data on the right. 
+
+Let’s see this in action by using pivot_longer() in an example given by R4DS:
+The billboard dataset records the billboard rank of songs in the year 2000. 
+
+```{r}
+billboard
+```
+
+Remember our first step in evaluating a dataset? It is to understand what each observation means, so we can be sure they are represented appropriately as rows. 
+
+In this dataset, each observation is a song. The first three columns (artist, track and date.entered) are variables that describe the song. Then we have 76 columns (wk1-wk76) that describe the rank of the song in each week. Here, the column names are one variable (the week) and the cell values are another (the rank). To tidy the billboard dataset we will use pivot_longer().
+
+This is the case where actual data values (wk1, wk2 etc.)  are in the column name, with each observation (row of data) being a song. We need to have the data in a format where each row is an observation (so-called long format).
+
+```{r}
+billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    values_to = "rank"
+  )
+```
+
+As you can see in the above code snippet, there are three key arguments to the pivot_longer() function:
+1. cols which specifies the columns you want to pivot (the ones that aren’t variables). 
+Note: you could either use !c(artist, track, date.entered) OR starts_with('wk') because the cols argument uses the same syntax as select().
+2. names_to which names the variable stored in the column names. We chose to name that variable week.
+3. values_to which names the variable stored in the cell values that we named rank
+
+Note that in the code "week" and "rank" are quoted because they are new variables that we are creating, they don’t exist yet in the data when we run the pivot_longer() call.
+
+Notice the NA values in the output above? It looks like “Baby Don’t Cry” by 2 Pac was only in the top 100 for 7 out of 76 weeks. Therefore, when we lengthened the data, the weeks where it wasn't on the charts became ‘NA.’ These NA’s were forced to exist because of the structure of the dataset not because they are actually unknown. Therefore, we can simply ask pivot_longer to remove them by adding the argument values_drop_na = TRUE as shown below:
+
+```{r}
+billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    values_to = "rank",
+    values_drop_na = TRUE
+  )
+
+```
+
+There are now far fewer rows in total, indicating that a heap of NAs were dropped.
+Congratulations! Our data is now tidy! 
+
+However, do note that there are still some things we could do to improve the format to make future computation easier. Such as converting some of our values from strings to numbers using mutate() and parse_number(). See the end of section 6.3.1 in the textbook.
+
+4.5.2 Pivoting longer
+
+We’ve just seen how pivoting can help reshape our data but let's look further into what pivoting actually does to our data. We will start with a simple dataset and once again follow an example from R4DS. Note the use of the term “tribble” here (not the same as tibble) but also a type of dataframe that allows us to construct small tibbles by hand. Don’t get too caught up in this, simply follow along with the example.
+
+```{r}
+df <- tribble(
+  ~id,  ~bp1, ~bp2,
+   "A",  100,  120,
+   "B",  140,  115,
+   "C",  120,  125
+)
+
+df
+```
+
+Here, all we have done is created a dataset called ‘df’ with 3 variables and their associated values. 
+
+However, we want our new (tidy) dataset to have three variables: 
+1. id (which already exists)
+2. measurement (the column names) 
+3. value (the cell values)
+
+To make this happen we need to pivot df longer:
+
+```{r}
+df |> 
+  pivot_longer(
+    cols = bp1:bp2,
+    names_to = "measurement",
+    values_to = "value"
+  )
+
+```
+
+How does this reshaping happens column by column? The values in a column which was already a variable in the original dataset (in this case id) need to be repeated, once for each column that is pivoted.
+
+The data pivoted and repeated an id for each measurement.
+
+Additionally, the original column names in df (bp1 and bp2) now become values in a new variable, whose name is defined by the names_to argument and these values need to be repeated once for each row in the original dataset.
+
+And finally, the cell values also become a new variable with a name we defined by the values_to argument. These are unwound row by row.
+
+
+4.5.3 Widening datasets
+
+In less common cases, we may need to widen a dataset rather than lengthen it. Widening is essentially the opposite of lengthening and we do so by using the function pivot_wider(). pivot_wider() allows us to handle an observation if it is scattered across multiple rows. Let’s visualize this in the image below:
+
+In table2 we see an observation is a country in a year with the observation spread across two rows (cases or population and their values). In this case, the table on the left needs to be made wider (like the table on the right) to move the value of cases into one column, and those of population into another column to comply with the 3 rules of tidy data (section 4.4).
+
+We’ll use an example from R4DS to explore pivot_wider() looking at the cms_patient_experience dataset from the Centers of Medicare and Medicaid.
+
+```{r}
+cms_patient_experience
+
+```
+
+The core unit being studied is an organization. But in this format, each organization is spread across six rows with one row for each measurement taken in the survey organization. We can see the complete set of values for measure_cd and measure_title by using distinct():
+
+```{r}
+cms_patient_experience |> 
+  distinct(measure_cd, measure_title)
+
+```
+
+Neither of these columns will make particularly great variable names: measure_cd doesn’t hint at the meaning of the variable and measure_title is a long sentence containing spaces. We’ll use measure_cd as the source for our new column names for now, but in a real analysis you might want to create your own variable names that are both short and meaningful.
+
+pivot_wider() has the opposite interface to pivot_longer(): instead of choosing new column names, we need to provide the existing columns that define the values (values_from) and the column name (names_from):
+
+```{r}
+cms_patient_experience |> 
+  pivot_wider(
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+
+```
+The above output doesn’t look quite right; we still seem to have multiple rows for each organization. That’s because, we also need to tell pivot_wider() which column or columns have values that uniquely identify each row; in this case those are the variables starting with "org":
+
+```{r}
+cms_patient_experience |> 
+  pivot_wider(
+    id_cols = starts_with("org"),
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+
+```
+
+And voila! This gives us the output we are looking for!
+
+4.5.4 Pivoting wider
+
+To understand what pivot_wider() does to our data, let’s once again use a simple example. This time we have two patients with id s A and B, and we have three blood pressure (bp) measurements from patient A and two from patient B:
+
+```{r}
+df <- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100,
+  "B",        "bp1",    140,
+  "B",        "bp2",    115, 
+  "A",        "bp2",    120,
+  "A",        "bp3",    105
+)
+
+df
+```
+We’ll take the names from the measurement column using the names_from() argument and the values from the value column using the values_from() argument:
+
+```{r}
+df |> 
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  )
+```
+
+To start the pivoting process, pivot_wider() needs to first figure out what will go in the rows and columns. The new column names will be the unique values of measurement.
+
+```{r}
+df |> 
+  distinct(measurement) |> 
+  pull()
+
+df
+```
+
+By default, the rows in the output are determined by all the variables that aren’t going into the new names or values. These are called the id_cols. Here there is only one column, but in general there can be any number.
+
+```{r}
+df |> 
+  select(-measurement, -value) |> 
+  distinct()
+
+```
+
+pivot_wider() then combines these results to generate an empty dataframe:
+
+```{r}
+df |> 
+  select(-measurement, -value) |> 
+  distinct() |> 
+  mutate(x = NA, y = NA, z = NA)
+
+```
+It then fills in all the missing values using the data in the input. In this case, not every cell in the output has a corresponding value in the input as there’s no third blood pressure measurement for patient B, so that cell remains missing. You can read about how pivot_wider() “makes” missing values in chapter 19 of the textbook. And we will cover missing values later in this workshop.
+
+4.5.5 Exercises
+
+1. Why are pivot_longer() and pivot_wider() not perfectly symmetrical? Carefully consider the following example. 
+
+(Hint: look at the variable types and think about column names) pivot_longer() has a names_ptypes argument, e.g.  names_ptypes = list(year = double()). What does it do?
+
+```{r}
+
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
+
+```
+
+Why are pivot_longer() and pivot_wider() not perfectly symmetrical? 
+
+The functions pivot_longer() and pivot_wider() are not perfectly symmetrical because column type information is lost when a data frame is converted from wide to long. The function pivot_longer() stacks multiple columns which may have had multiple data types into a single column with a single data type. This transformation throws away the individual data types of the original columns. 
+
+The function pivot_wider() creates column names from values in column. These column names will always be treated as character values by pivot_longer() so if the original variable used to create the column names did not have a character data type, then the round-trip will not reproduce the same dataset.
+
+The pivot_wider() expression pivots the table to create a data frame with years as column names, and the values in return as the column values.
+
+The pivot_longer() expression unpivots the table, returning it to a tidy data frame with columns for half, year, and return.
+
+2. Why does this code fail?
+
+```{r}
+table4a %>% 
+  pivot_longer(c(1999, 2000), names_to = "year", values_to = "cases")
+
+```
+The code fails because the column names 1999 and 2000 are not non-syntactic variable names.[^non-syntactic] When selecting variables from a data frame, tidyverse functions will interpret numbers, like 1999 and 2000, as column numbers. In this case, pivot_longer() tries to select the 1999th and 2000th column of the data frame. To select the columns 1999 and 2000, the names must be surrounded in backticks (`) or provided as strings.
+
+These are two ways to do this:
+
+1. Using back ticks (`)
+```{r}
+table4a %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "cases")
+```
+2. Using quotations (")
+```{r}
+table4a %>% 
+  pivot_longer(c("1999", "2000"), names_to = "year", values_to = "cases")
+```
+
+
+3. Consider the sample tibble below. Do you need to make it wider or longer? What are the variables?
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+```
+
+The table needs to be longer, to do this I will use pivot_longer().
+
+The variables in this data are:
+- sex (“female”, “male”)
+- pregnant (“yes”, “no”)
+- count (a non-negative integer representing the number of observations)
+
+The observations in this data are unique combinations of sex and pregnancy status.
+
+```{r}
+preg_tidy <- preg %>%
+  pivot_longer(c(male, female), names_to = "sex", values_to = "count")
+preg_tidy
+```
+
+Remove the (male, pregnant) row with a missing value to simplify the tidied data frame.
+
+```{r}
+preg_tidy2 <- preg %>%
+  pivot_longer(c(male, female), names_to = "sex", values_to = "count", values_drop_na = TRUE)
+preg_tidy2
+```
+
+This an example of turning an explicit missing value into an implicit missing value, which is discussed in the upcoming section, Missing Values section. The missing (male, pregnant) row represents an implicit missing value because the value of count can be inferred from its absence. In the tidy data, we can represent rows with missing values of count either explicitly with an NA (as in preg_tidy) or implicitly by the absence of a row (as in preg_tidy2). But in the wide data, the missing values can only be represented explicitly.
+
+Though we have already done enough to make the data tidy, there are some other transformations that can clean the data further. If a variable takes two values, like pregnant and sex, it is often preferable to store them as logical vectors
+
+```{r}
+preg_tidy3 <- preg_tidy2 %>%
+  mutate(
+    female = sex == "female",
+    pregnant = pregnant == "yes"
+  ) %>%
+  select(female, pregnant, count)
+preg_tidy3
+```
+
+In the previous data frame, I named the logical variable representing the sex female, not sex. This makes the meaning of the variable self-documenting. If the variable were named sex with values TRUE and FALSE, without reading the documentation, we wouldn’t know whether TRUE means male or female.
+
+Apart from some minor memory savings, representing these variables as logical vectors results in more clear and concise code. Compare the filter() calls to select non-pregnant females from preg_tidy2 and preg_tidy.
+
+```{r}
+filter(preg_tidy2, sex == "female", pregnant == "no")
+```
+
+
+```{r}
+filter(preg_tidy3, female, !pregnant)
+```
+
+4.5.6 Separating and uniting data tables
+
+We have seen so far how to tidy datasets by lengthening and widening them.
+
+This section comes from the first edition of the R4DS textbook. In table3, we see one column (rate) that contains two variables (cases and population). To address this, we can use the separate() function which separates one column into multiple columns wherever you designate.
+
+
+
+
+
+

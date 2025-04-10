@@ -198,6 +198,7 @@ install.packages('viridis')
 install.packages('hexbin')
 library(viridis)
 library(hexbin)
+#library(tibble)
 
 df <- tibble( # note we're just making a fake dataset so we can plot it
   x = rnorm(10000),
@@ -290,5 +291,66 @@ ________________________________________________________________________________
 Once you’ve completed your first assignment for this module (Plot Deconstruction), you can move on to developing a full end-to-end analysis of a dataset in R. This task is designed to show you how you can now take any dataset and use your skills as a marine data scientist to build impressive analyses and data visualisations that you can share with end-users. 
 
 Note: this assignment will be introduced in detail in Workshop 3, because it relies on the tidyr skills that you’ll develop in the next workshops for this module.
+
+In this assignment, we will use real-world marine data collected as part of Queensland fisheries QFISH database to develop a report (either written on your website or via an R Markdown report embedded in your website) suitable for reporting to your manager, a community group or for your own research.
+
+Part 1. First, obtain your data. 
+
+Go to QFISH and review all of the available datasets that you could analyse. Here you will note that there are summaries available - I suggest a dataset that has both summaries and catch information in space (like regions) and by species. For example, selecting the Shark Control Program tab at left, then selecting the number caught by area, calendar year and species group offers a data table by species, year and region.
+
+Identify the dataset you want to analyse
+
+Chosen dataset: Commercial Otter Trawl Fishery
+
+Export the dataset in an appropriate format for R.
+Use your Github repo to save the data in an appropriate place.
+Ensure you sync your github regularly by committing and pushing to the remote repository.
+
+```{r}
+#library(tidyverse)
+
+#read csv file
+qfish <- read.csv("../data/QFISH.csv")
+qfish
+
+```
+
+Part 2. Tidy the data.
+
+Using the tidyverse, get your data ready for making a plot.
+
+```{r}
+# Clean the Tonnes column: remove commas and convert to numeric
+qfish$Tonnes <- as.numeric(gsub(",", "", qfish$Tonnes))
+
+```
+
+Use R Markdown to write your analysis up as a report that shows all of the steps you used to import the data and plot it. (Note: it’s ok if you want to simply use a script - in this case build your report directly on your website).
+
+Develop a time-series (or any other plot) that you want to make.
+
+```{r}
+# Remove the outlier (highest Tonnes value)
+qfish_no_outlier <- qfish[qfish$Tonnes < max(qfish$Tonnes, na.rm = TRUE), ]
+
+# Create scatter plot
+ggplot() +
+  geom_point(data = qfish_no_outlier, aes(x = Licences, y = Tonnes, color = "Catch Data"), #add data points
+             alpha = 0.8, size = 1.5) + #transparency & size of data points
+  geom_smooth(data = qfish_no_outlier, aes(x = Licences, y = Tonnes, color = "Trendline"), #add trendline
+              method = "gam", se = FALSE, size = 1) +
+  scale_color_manual(
+    name = "Legend", #make legend
+    values = c("Catch Data" = "darkblue", "Trendline" = "red") #add colours
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.15))) + #adjust scale
+  labs(
+    title = "Relationship Between Number of Licences and Tonnes of Catch",
+    x = "Number of Licences",
+    y = "Tonnes of Catch"
+  ) +
+  theme_minimal()
+
+```
 
 
